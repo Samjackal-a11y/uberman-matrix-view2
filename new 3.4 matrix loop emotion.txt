@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uberman Matrix View v3.3</title>
+  <style>
+    body {
+      background: black;
+      overflow: hidden;
+      margin: 0;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <script>
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    // Drivers: emotion (color warmth), curiosity (speed)
+    const drivers = {
+      emotion: 0.6,
+      curiosity: 0.5
+    };
+
+    // Glyph source from your blueprint JSON
+    const blueprint = {
+      UbermanBlueprint_v3_2: {
+        ModelChoices: {
+          StoryView: "Narrative, ethics, healing compass",
+          MatrixView: "JSON code, glyphs, causal maps",
+          FusionView: {
+            Graphs: ["Cortisol_vs_Serotonin", "Dopamine_vs_Oxytocin"],
+            CausalMap: "Nodes + edges showing feedback loop",
+            PatchNotes: [
+              "v1.0 foundation",
+              "v2.0 hierarchies + AI",
+              "v3.0 graphs",
+              "v3.1 causal map",
+              "v3.2 fusion view"
+            ]
+          }
+        },
+        Integration: "Three views, one operating system. Balance becomes evolution."
+      }
+    };
+
+    const chars = JSON.stringify(blueprint);
+    const fontSize = 16;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = new Array(columns).fill(1);
+
+    function glyphColor(emotion) {
+      const g = 255;
+      const r = Math.floor(204 * emotion);
+      return `rgb(${r}, ${g}, 0)`;
+    }
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = glyphColor(drivers.emotion);
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    let last = 0;
+    function loop(ts) {
+      const baseMs = 33;
+      const speedFactor = 1 - drivers.curiosity * 0.6;
+      const interval = baseMs * speedFactor;
+
+      if (ts - last >= interval) {
+        draw();
+        last = ts;
+      }
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
