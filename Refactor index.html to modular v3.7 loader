@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uberman Matrix View v3.7 (Modular)</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <div id="controls">
+    <label><strong>Emotion:</strong>
+      <input id="emotion" type="range" min="0" max="1" step="0.01" value="0.6">
+      <span id="emotionVal">0.60</span>
+    </label><br>
+    <label><strong>Curiosity:</strong>
+      <input id="curiosity" type="range" min="0" max="1" step="0.01" value="0.5">
+      <span id="curiosityVal">0.50</span>
+    </label>
+  </div>
+
+  <div id="viewToggle">
+    <button onclick="switchView('story')">StoryView</button>
+    <button onclick="switchView('matrix')">MatrixView</button>
+    <button onclick="switchView('fusion')">FusionView</button>
+  </div>
+
+  <div id="graphs">
+    <div><strong>Legend:</strong> Emotion → warmth, Curiosity → speed</div>
+    <canvas id="graph1" width="300" height="80" style="margin:6px 0;"></canvas>
+    <div><strong>Cortisol vs Serotonin:</strong> Balance under pacing</div>
+    <canvas id="graph2" width="300" height="80" style="margin:6px 0;"></canvas>
+    <div><strong>Dopamine vs Oxytocin:</strong> Drive meets bonding</div>
+  </div>
+
+  <div id="caption"><strong>Note:</strong> Real-time balance: stress/serenity and drive/bonding.</div>
+
+  <script type="module">
+    import { drivers, tick } from './assets/app.js';
+    import { renderGraphs } from './assets/graphs.js';
+    import { switchView } from './assets/views.js';
+
+    // Expose for buttons
+    window.switchView = switchView;
+
+    // Slider wiring
+    const eSlider = document.getElementById('emotion');
+    const cSlider = document.getElementById('curiosity');
+    const eVal = document.getElementById('emotionVal');
+    const cVal = document.getElementById('curiosityVal');
+
+    eSlider.addEventListener('input', () => {
+      drivers.emotion = parseFloat(eSlider.value);
+      eVal.textContent = drivers.emotion.toFixed(2);
+    });
+    cSlider.addEventListener('input', () => {
+      drivers.curiosity = parseFloat(cSlider.value);
+      cVal.textContent = drivers.curiosity.toFixed(2);
+    });
+
+    // Start loop
+    requestAnimationFrame((t)=>tick(t, renderGraphs));
+  </script>
+</body>
+</html>
