@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uberman Matrix View v3.7</title>
+  <style>
+    body {
+      background: black;
+      overflow: hidden;
+      margin: 0;
+      font-family: monospace;
+    }
+    canvas {
+      display: block;
+    }
+    #matrix {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    #controls, #graphs, #caption {
+      position: fixed;
+      z-index: 10;
+      font-size: 14px;
+      color: #ccc;
+    }
+    #controls {
+      top: 12px;
+      left: 12px;
+    }
+    #viewToggle {
+      top: 12px;
+      right: 12px;
+    }
+    #graphs {
+      bottom: 12px;
+      left: 12px;
+      width: 320px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #333;
+      padding: 10px;
+      font-size: 12px;
+    }
+    #caption {
+      bottom: 98px;
+      left: 14px;
+      font-size: 12px;
+      color: #9aa7a6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas -->
+  <canvas id="matrix"></canvas>
+
+  <!-- Slider Controls -->
+  <div id="controls">
+    <label>
+      <strong>Emotion:</strong>
+      <input id="emotion" type="range" min="0" max="1" step="0.01" value="0.6">
+      <span id="emotionVal">0.60</span>
+    </label><br>
+    <label>
+      <strong>Curiosity:</strong>
+      <input id="curiosity" type="range" min="0" max="1" step="0.01" value="0.5">
+      <span id="curiosityVal">0.50</span>
+    </label>
+  </div>
+
+  <!-- View Toggle Buttons -->
+  <div id="viewToggle">
+    <button onclick="switchView('story')">StoryView</button>
+    <button onclick="switchView('matrix')">MatrixView</button>
+    <button onclick="switchView('fusion')">FusionView</button>
+  </div>
+
+  <!-- Graph Overlay Panel -->
+  <div id="graphs">
+    <div><strong>Legend:</strong> Emotion → warmth, Curiosity → speed</div>
+    <canvas id="graph1" width="300" height="80" style="margin:6px 0;"></canvas>
+    <div><strong>Cortisol vs Serotonin:</strong> Balance under pacing</div>
+    <canvas id="graph2" width="300" height="80" style="margin:6px 0;"></canvas>
+    <div><strong>Dopamine vs Oxytocin:</strong> Drive meets bonding</div>
+  </div>
+
+  <!-- Caption -->
+  <div id="caption">
+    <strong>Note:</strong> Graphs show real-time balance: stress/serenity and drive/bonding.
+  </div>
+
+  <script>
+    // View switching
+    function switchView(view) {
+      const urls = {
+        story: "https://sites.google.com/view/uberman-blueprint--ethics/story-prologue",
+        matrix: "https://samjackal-a11y.github.io/uberman-matrix-view2/",
+        fusion: "https://sites.google.com/view/uberman-blueprint--ethics/license-ethics"
+      };
+      window.location.href = urls[view];
+    }
+
+    // Canvas setup
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Drivers
+    const drivers = { emotion: 0.6, curiosity: 0.5 };
+
+    // Sliders
+    const eSlider = document.getElementById('emotion');
+    const cSlider = document.getElementById('curiosity');
+    const eVal = document.getElementById('emotionVal');
+    const cVal = document.getElementById('curiosityVal');
+
+    eSlider.addEventListener('input', () => {
+      drivers.emotion = parseFloat(eSlider.value);
+      eVal.textContent = drivers.emotion.toFixed(2);
+    });
+    cSlider.addEventListener('input', () => {
+      drivers.curiosity = parseFloat(cSlider.value);
+      cVal.textContent = drivers.curiosity.toFixed(2);
+    });
+
+    // Glyph engine
+    const blueprint = {
+      UbermanBlueprint_v3_2: {
+        ModelChoices: {
+          StoryView: "Narrative, ethics, healing compass",
+          MatrixView: "JSON code, glyphs, causal maps",
+          FusionView: {
+            Graphs: ["Cortisol_vs_Serotonin", "Dopamine_vs_Oxytocin"],
+            CausalMap: "Nodes + edges showing feedback loop",
+            PatchNotes: ["v1.0 foundation", "v2.0 hierarchies + AI", "v3.0 graphs", "v3.1 causal map", "v3.2 fusion view"]
+          }
+        },
+        Integration: "Three views, one operating system. Balance becomes evolution."
+      }
+    };
+
+    const chars = JSON.stringify(blueprint);
+    const fontSize = 16;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = new Array(columns).fill(1);
+
+    function glyphColor(emotion) {
+      const g = 255;
+      const r = Math.floor(204 * emotion);
+      return `rgb(${r}, ${g}, 0)`;
+    }
+
+    function drawGlyphs() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = glyphColor(drivers.emotion);
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+
+    // Chemistry mapping
+    function clamp(x) { return Math.max(0, Math.min(1, x)); }
+    function chemistryFromDrivers({ emotion, curiosity }) {
+      return {
+        cortisol: clamp(0.2 + 0.7 * curiosity - 0.2 * emotion),
+        serotonin: clamp(0.2 + 0.6 * emotion - 0.2 * curiosity),
+        dopamine: clamp(0.15 + 0.7 * curiosity + 0.05 * Math.random()),
+        oxytocin: clamp(0.15 + 0.6 * emotion - 0.15 * curiosity)
+      };
+    }
+
+    // Graph rendering
+    const g1 = document.getElementById('graph1').getContext('2d');
+    const g2 = document.getElementById('graph2').getContext('2d');
+    const series = {
+      cortisol: new Array(120).fill(0),
+      serotonin: new Array(120).fill(0),
+      dopamine: new Array(120).fill(0),
+      oxytocin: new Array(120).fill(0)
+    };
+
+    function pushSeries(key, value) {
+      series[key].push(value);
+      series[key].shift();
+    }
+
+    function drawSeries(ctx, data, color) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      const W = ctx.canvas.width, H = ctx.canvas.height;
+      for (let i = 0; i < data.length; i++) {
+        const x = (i / (data.length - 1)) * (W - 1);
+        const y = H - 2 - data[i] * (H - 4);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    function clearGraph(ctx) {
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 1; i < 5; i++) {
+        const y = (i / 5) * ctx.canvas.height;
+        ctx.moveTo(0, y); ctx.lineTo(ctx.canvas.width, y);
+      }
+      ctx.stroke();
+    }
+
+    function renderGraphs() {
+      const chem = chemistryFromDrivers(drivers);
+      pushSeries('cortisol', chem.cortisol);
+      pushSeries('serotonin',
