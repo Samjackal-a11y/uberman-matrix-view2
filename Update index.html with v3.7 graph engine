@@ -1,0 +1,31 @@
+      pushSeries('dopamine', chem.dopamine);
+      pushSeries('oxytocin', chem.oxytocin);
+
+      clearGraph(g1);
+      drawSeries(g1, series.cortisol, "#ff6a00");   // warm orange
+      drawSeries(g1, series.serotonin, "#66ff99");  // mint green
+
+      clearGraph(g2);
+      drawSeries(g2, series.dopamine, "#33ccff");   // teal blue
+      drawSeries(g2, series.oxytocin, "#ffd54d");   // soft yellow
+    }
+
+    // Main loop
+    let last = 0;
+    function loop(ts) {
+      const baseMs = 33;
+      const speedFactor = 1 - drivers.curiosity * 0.6;
+      const interval = baseMs * speedFactor;
+
+      if (ts - last >= interval) {
+        drawGlyphs();
+        renderGraphs();
+        last = ts;
+      }
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
